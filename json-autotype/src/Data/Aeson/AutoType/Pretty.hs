@@ -20,6 +20,7 @@ import           Data.Scientific
 import           Data.Vector                as V(Vector, toList)
 import           Text.PrettyPrint.GenericPretty
 import           Text.PrettyPrint
+import qualified Data.Aeson.KeyMap          as Aeson
 
 formatPair :: (Out a, Out b) => (a, b) -> Doc
 formatPair (a, b) = nest 1 (doc a <+> ": " <+> doc b <+> ",")
@@ -44,3 +45,16 @@ instance (Out a, Out b) => Out (HashMap a b) where
 instance Out Text where
   doc       = text . Text.unpack -- TODO: check if there may be direct way?
   docPrec _ = doc
+
+instance Out v => Out (Aeson.KeyMap v) where
+  docPrec _ = doc
+  doc =  doc . Aeson.toHashMapText
+
+instance Out Value where
+  docPrec _ = doc
+  doc Null = text "Null"
+  doc (Number s) = doc s
+  doc (Bool b) = doc b
+  doc (String s) = doc s
+  doc (Array vs) = doc vs
+  doc (Object km) = doc km

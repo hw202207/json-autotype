@@ -75,16 +75,16 @@ other-extensions:
 dependencies:
 - base >=4.9 && <5
 - GenericPretty >=1.2 && <1.3
-- aeson >=1.2.1 && <1.6
+- aeson >=1.2.1 && <2.2
 - containers >=0.3 && <0.7
 - filepath >=1.3 && <1.5
-- hashable >=1.2 && <1.4
-- lens >=4.1 && <4.20
+- hashable >=1.2 && <1.5
+- lens >=4.1 && <5.3
 - mtl >=2.1 && <2.3
 - pretty >=1.1 && <1.3
 - process >=1.1 && <1.7
 - scientific >=0.3 && <0.5
-- text >=1.1 && <1.4
+- text >=1.1 && <2.1
 - uniplate >=1.6 && <1.7
 - unordered-containers >=0.2 && <0.3
 - vector >=0.9 && <0.13
@@ -119,7 +119,7 @@ executables:
     - app
     - common
     dependencies:
-    - bytestring >=0.9 && <0.11
+    - bytestring >=0.9 && <0.12
     - optparse-applicative >=0.12 && <1.0
     - yaml >=0.8 && <0.12
     - json-autotype
@@ -151,7 +151,7 @@ tests:
     - test/gen
     - common
     dependencies:
-    - bytestring >=0.9 && <0.11
+    - bytestring >=0.9 && <0.12
     - directory >=1.1 && <1.4
     - optparse-applicative >=0.12 && <1.0
     - smallcheck >=1.0 && <1.2

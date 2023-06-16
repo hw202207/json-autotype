@@ -33,8 +33,6 @@ instance (Out a) => Out (Vector a) where
   doc (V.toList -> v) = "<" <+> doc v <+> ">"
   docPrec _ = doc
 
-instance Out Value
-
 instance (Out a) => Out (Set a) where
   doc     (Set.toList -> s) = "{" <+> doc s <+> "}"
   docPrec _                 = doc

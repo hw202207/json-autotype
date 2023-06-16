@@ -7,6 +7,7 @@ module Data.Aeson.AutoType.Test (
 
 import           Data.Aeson.AutoType.Pretty          () -- Generic instance for Value
 
+import           Data.String (fromString)
 import           Control.Applicative                 ((<$>), (<*>))
 import           Data.Aeson
 import           Data.Function                       (on)
@@ -19,7 +20,7 @@ import           Data.Text                           (Text)
 import qualified Data.Vector                 as V
 import qualified Data.HashMap.Strict         as Map
 import           GHC.Generics
-
+import qualified Data.Aeson.KeyMap           as Aeson
 import           Test.QuickCheck.Arbitrary
 import           Test.QuickCheck
 import           Test.SmallCheck.Series
@@ -45,30 +46,15 @@ makeMap  = Map.fromList
 instance Arbitrary Scientific where
   arbitrary = scientific <$> arbitrary <*> arbitrary
 
--- TODO: top value has to be complex: Object or Array
--- TODO: how to accumulate cost when generating the series?
-instance Arbitrary Value where
-  arbitrary = sized arb
-    where
-      arb n | n < 0 = error "Negative size!"
-      arb 0         = return Null
-      arb 1         = oneof                          simpleGens
-      arb i         = oneof $ complexGens (i - 1) ++ simpleGens
-      simpleGens    = [Number <$> arbitrary
-                      ,Bool   <$> arbitrary
-                      ,String <$> arbitrary]
-  shrink = concatMap simpleShrink
-         . universe
-
 -- | Transformation to shrink top level of @Value@, doesn't consider nested sub-@Value@s.
 simpleShrink           :: Value -> [Value]
 simpleShrink (Array  a) = map (Array  .   V.fromList) $ shrink $ V.toList   a
-simpleShrink (Object o) = map (Object . Map.fromList) $ shrink $ Map.toList o
+simpleShrink (Object o) = map (Object . Aeson.fromList) $ shrink $ Aeson.toList o
 simpleShrink _          = [] -- Nothing for simple objects
 
 -- | Generator for compound @Value@s
 complexGens ::  Int -> [Gen Value]
-complexGens i = [Object . Map.fromList <$> resize i arbitrary,
+complexGens i = [Object . Aeson.fromList <$> resize i arbitrary,
                  Array                 <$> resize i arbitrary]
 
 -- | Arbitrary JSON (must start with Object or Array.)
@@ -87,6 +73,12 @@ instance Serial m a => Serial m (V.Vector a) where
 
 instance Serial m v => Serial m (Map.HashMap Text v) where
   series = newtypeCons makeMap
+
+instance Monad m => Serial m Aeson.Key where
+  series = newtypeCons fromString
+
+instance Serial m v => Serial m (Aeson.KeyMap v) where
+  series = newtypeCons Aeson.fromList
 
 -- This one is generated with Generics and instances above
 instance Monad m => Serial m Value
